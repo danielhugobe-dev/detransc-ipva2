@@ -1,7 +1,7 @@
 <?php
 date_default_timezone_set('America/Sao_Paulo');
 
-// --- Caminhos absolutos ---
+// Caminhos absolutos
 $basePath = dirname(__DIR__); // raiz do projeto
 $cfgPath = $basePath . '/pix_config.json';
 $pixLogPath = $basePath . '/pix_log.json';
@@ -10,11 +10,12 @@ $clickStatsPath = $basePath . '/click_stats.json';
 
 $msg = isset($_GET['msg']) ? (string)$_GET['msg'] : '';
 
-// --- Funções utilitárias ---
+// Funções utilitárias
 function load_json($path, $default) {
     if (!file_exists($path)) return $default;
     $data = json_decode(file_get_contents($path), true);
-    return is_array($data) ? $data : $default;
+    if (!is_array($data)) return $default;
+    return $data;
 }
 
 function save_json($path, $data) {
@@ -87,11 +88,16 @@ usort($pixEntries, function($a,$b){ return strtotime(isset($b['ts'])?$b['ts']:0)
 usort($searchEntries, function($a,$b){ return strtotime(isset($b['ts'])?$b['ts']:0) - strtotime(isset($a['ts'])?$a['ts']:0); });
 
 // Stats
-$totalPix = 0; foreach($pixEntries as $p) $totalPix += isset($p['valor']) ? floatval($p['valor']) : 0;
-$uniqueIps = array(); foreach(array_merge($pixEntries,$searchEntries) as $e){ if(isset($e['ip'])) $uniqueIps[$e['ip']]=true; }
-$totalVisitors = count($uniqueIps);
-?>
+$totalPix = 0; 
+foreach($pixEntries as $p) $totalPix += isset($p['valor']) ? floatval($p['valor']) : 0;
 
+$uniqueIps = array(); 
+foreach(array_merge($pixEntries,$searchEntries) as $e){ 
+    if(isset($e['ip'])) $uniqueIps[$e['ip']]=true; 
+}
+$totalVisitors = count($uniqueIps);
+
+?>
 <!doctype html>
 <html lang="pt-br">
 <head>
@@ -118,15 +124,23 @@ $totalVisitors = count($uniqueIps);
 
 <h2>PIX Recentes</h2>
 <?php if(empty($pixEntries)) echo "<p>Nenhum registro</p>"; else: ?>
-<ul><?php foreach(array_slice($pixEntries,0,10) as $p){ $ua=parse_ua(isset($p['ua'])?$p['ua']:''); ?>
+<ul>
+<?php foreach(array_slice($pixEntries,0,10) as $p){ 
+    $ua=parse_ua(isset($p['ua'])?$p['ua']:''); ?>
 <li><?php echo isset($p['placa'])?$p['placa']:'N/A'; ?> - <?php echo isset($p['valor_brl'])?$p['valor_brl']:'R$0,00'; ?> - <?php echo $ua['icon'].' '.$ua['type']; ?></li>
-<?php } ?></ul><?php endif; ?>
+<?php } ?>
+</ul>
+<?php endif; ?>
 
 <h2>Histórico de Buscas</h2>
 <?php if(empty($searchEntries)) echo "<p>Nenhuma busca</p>"; else: ?>
-<ul><?php foreach(array_slice($searchEntries,0,10) as $s){ $ua=parse_ua(isset($s['ua'])?$s['ua']:''); ?>
+<ul>
+<?php foreach(array_slice($searchEntries,0,10) as $s){ 
+    $ua=parse_ua(isset($s['ua'])?$s['ua']:''); ?>
 <li><?php echo isset($s['plate'])?$s['plate']:'-'; ?> - <?php echo $ua['icon'].' '.$ua['type']; ?></li>
-<?php } ?></ul><?php endif; ?>
+<?php } ?>
+</ul>
+<?php endif; ?>
 
 <form method="post" onsubmit="return confirm('Tem certeza?');">
 <input type="hidden" name="reset_stats" value="1">
