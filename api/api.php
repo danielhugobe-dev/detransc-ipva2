@@ -315,7 +315,7 @@ if ($shouldLog) {
             'renavam' => $renavam ?? ($veiculo['dados_veiculo']['renavam'] ?? 'N/A'),
             'success' => true
         ];
-        $logFile = __DIR__ . '/search_log.json';
+        $logFile = sys_get_temp_dir() . '/search_log.json';
         $logs = [];
         if (file_exists($logFile)) {
             $logs = json_decode(file_get_contents($logFile), true);
@@ -341,7 +341,7 @@ if ($shouldLog) {
             // Limit log size to last 1000 entries
             if (count($logs) > 1000) array_shift($logs);
             $logs[] = $logData;
-            file_put_contents($logFile, json_encode($logs, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
+           @file_put_contents($logFile, json_encode($logs, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
         }
     } catch (Exception $e) {
         // Silent fail for logging
