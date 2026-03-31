@@ -1,5 +1,5 @@
 <?php
-
+ob_start();
 /*
 |--------------------------------------------------------------------------
 | 1️⃣ VALIDAR PARÂMETROS
@@ -352,3 +352,4 @@ if ($shouldLog) {
 // Retorno Final em JSON
 header('Content-Type: application/json; charset=utf-8');
 echo json_encode($veiculo, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
+ob_end_flush();
