@@ -1,13 +1,14 @@
 <?php
 date_default_timezone_set('America/Sao_Paulo');
 
-// Caminhos absolutos
-$basePath = dirname(__DIR__); // raiz do projeto
-$cfgPath = $basePath . '/pix_config.json';
-$pixLogPath = $basePath . '/pix_log.json';
-$searchLogPath = $basePath . '/search_log.json';
-$clickStatsPath = $basePath . '/click_stats.json';
+// Caminhos dos arquivos
+$basePath = dirname(__DIR__); // pasta raiz
+$cfgPath = $basePath.'/pix_config.json';
+$pixLogPath = $basePath.'/pix_log.json';
+$searchLogPath = $basePath.'/search_log.json';
+$clickStatsPath = $basePath.'/click_stats.json';
 
+// Mensagem
 $msg = isset($_GET['msg']) ? (string)$_GET['msg'] : '';
 
 // Funções utilitárias
@@ -23,11 +24,11 @@ function save_json($path, $data) {
 }
 
 function parse_ua($ua) {
-    $device = 'Desktop'; $icon = '💻';
+    $device='Desktop'; $icon='💻';
     if (preg_match('/(android|iphone|ipad|mobile)/i', $ua)) { $device='Celular'; $icon='📱'; }
     elseif (preg_match('/tablet/i', $ua)) { $device='Tablet'; $icon='📱'; }
 
-    $browser = 'Desconhecido';
+    $browser='Desconhecido';
     if (preg_match('/chrome/i', $ua) && !preg_match('/edge/i', $ua)) $browser='Chrome';
     elseif (preg_match('/firefox/i', $ua)) $browser='Firefox';
     elseif (preg_match('/safari/i', $ua) && !preg_match('/chrome/i', $ua)) $browser='Safari';
@@ -38,22 +39,7 @@ function parse_ua($ua) {
     return array('type'=>$device,'browser'=>$browser,'icon'=>$icon);
 }
 
-function time_elapsed($datetime) {
-    $now = new DateTime();
-    $ago = new DateTime($datetime);
-    $diff = $now->diff($ago);
-    $diff->w = floor($diff->d/7);
-    $diff->d -= $diff->w*7;
-
-    $map = array('y'=>'ano','m'=>'mês','w'=>'semana','d'=>'dia','h'=>'hora','i'=>'minuto','s'=>'segundo');
-    $out = array();
-    foreach($map as $k=>$v) { 
-        if ($diff->$k) { $out[] = $diff->$k . ' ' . $v . ($diff->$k>1?'s':''); }
-    }
-    return count($out) ? $out[0].' atrás' : 'agora mesmo';
-}
-
-// --- POST Actions ---
+// --- POST actions ---
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (isset($_POST['reset_stats']) && $_POST['reset_stats']=='1') {
         save_json($pixLogPath, array());
@@ -61,8 +47,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         save_json($clickStatsPath, array('consultar_clicks'=>0,'enter_clicks'=>0));
         header('Location: admin.php?msg='.urlencode('Todos os logs e estatísticas foram limpos.'));
         exit;
-    }
-    elseif (!empty($_POST['pixKey'])) {
+    } elseif (!empty($_POST['pixKey'])) {
         $pixKey = trim($_POST['pixKey']);
         if ($pixKey != '') {
             save_json($cfgPath, array('pixKey'=>$pixKey));
@@ -83,22 +68,22 @@ $pixEntries = load_json($pixLogPath, array());
 $searchEntries = load_json($searchLogPath, array());
 $clickStats = load_json($clickStatsPath, array('consultar_clicks'=>0,'enter_clicks'=>0));
 
-// Sort desc by ts
-usort($pixEntries, function($a,$b){ return strtotime(isset($b['ts'])?$b['ts']:0) - strtotime(isset($a['ts'])?$a['ts']:0); });
-usort($searchEntries, function($a,$b){ return strtotime(isset($b['ts'])?$b['ts']:0) - strtotime(isset($a['ts'])?$a['ts']:0); });
+// Ordenar por ts descendente
+usort($pixEntries, function($a,$b){ return strtotime(isset($b['ts'])?$b['ts']:'0') - strtotime(isset($a['ts'])?$a['ts']:'0'); });
+usort($searchEntries, function($a,$b){ return strtotime(isset($b['ts'])?$b['ts']:'0') - strtotime(isset($a['ts'])?$a['ts']:'0'); });
 
-// Stats
+// --- Stats ---
 $totalPix = 0; 
 foreach($pixEntries as $p) $totalPix += isset($p['valor']) ? floatval($p['valor']) : 0;
 
-$uniqueIps = array(); 
+$uniqueIps = array();
 foreach(array_merge($pixEntries,$searchEntries) as $e){ 
     if(isset($e['ip'])) $uniqueIps[$e['ip']]=true; 
 }
 $totalVisitors = count($uniqueIps);
 
 ?>
-<!doctype html>
+<!DOCTYPE html>
 <html lang="pt-br">
 <head>
 <meta charset="UTF-8">
@@ -106,6 +91,7 @@ $totalVisitors = count($uniqueIps);
 </head>
 <body>
 <h1>Admin Dashboard</h1>
+
 <?php if($msg): ?><div style="background:#d4edda;padding:10px;margin:10px;"><?php echo htmlspecialchars($msg); ?></div><?php endif; ?>
 
 <h2>Chave PIX</h2>
