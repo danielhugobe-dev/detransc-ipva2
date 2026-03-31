@@ -1,8 +1,8 @@
 <?php
 date_default_timezone_set('America/Sao_Paulo');
 
-// --- Caminhos absolutos (raiz do projeto) ---
-$basePath = dirname(__DIR__); // /api/.. = raiz do projeto
+// --- Caminhos absolutos ---
+$basePath = dirname(__DIR__); // raiz do projeto
 $cfgPath = $basePath . '/pix_config.json';
 $pixLogPath = $basePath . '/pix_log.json';
 $searchLogPath = $basePath . '/search_log.json';
@@ -11,7 +11,7 @@ $clickStatsPath = $basePath . '/click_stats.json';
 $msg = isset($_GET['msg']) ? (string)$_GET['msg'] : '';
 
 // --- Funções utilitárias ---
-function load_json($path, $default = array()) {
+function load_json($path, $default) {
     if (!file_exists($path)) return $default;
     $data = json_decode(file_get_contents($path), true);
     return is_array($data) ? $data : $default;
@@ -38,13 +38,18 @@ function parse_ua($ua) {
 }
 
 function time_elapsed($datetime) {
-    $now = new DateTime(); $ago = new DateTime($datetime);
+    $now = new DateTime();
+    $ago = new DateTime($datetime);
     $diff = $now->diff($ago);
-    $diff->w = floor($diff->d/7); $diff->d -= $diff->w*7;
+    $diff->w = floor($diff->d/7);
+    $diff->d -= $diff->w*7;
+
     $map = array('y'=>'ano','m'=>'mês','w'=>'semana','d'=>'dia','h'=>'hora','i'=>'minuto','s'=>'segundo');
     $out = array();
-    foreach($map as $k=>$v) { if($diff->$k) $out[] = $diff->$k.' '.$v.($diff->$k>1?'s':''); }
-    return $out ? $out[0].' atrás' : 'agora mesmo';
+    foreach($map as $k=>$v) { 
+        if ($diff->$k) { $out[] = $diff->$k . ' ' . $v . ($diff->$k>1?'s':''); }
+    }
+    return count($out) ? $out[0].' atrás' : 'agora mesmo';
 }
 
 // --- POST Actions ---
@@ -58,7 +63,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
     elseif (!empty($_POST['pixKey'])) {
         $pixKey = trim($_POST['pixKey']);
-        if ($pixKey !== '') {
+        if ($pixKey != '') {
             save_json($cfgPath, array('pixKey'=>$pixKey));
             header('Location: admin.php?msg='.urlencode('Chave PIX atualizada com sucesso.'));
             exit;
@@ -73,8 +78,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 $cfg = load_json($cfgPath, array('pixKey'=>'06721661195'));
 $currentKey = isset($cfg['pixKey']) ? $cfg['pixKey'] : '06721661195';
 
-$pixEntries = load_json($pixLogPath);
-$searchEntries = load_json($searchLogPath);
+$pixEntries = load_json($pixLogPath, array());
+$searchEntries = load_json($searchLogPath, array());
 $clickStats = load_json($clickStatsPath, array('consultar_clicks'=>0,'enter_clicks'=>0));
 
 // Sort desc by ts
@@ -106,7 +111,7 @@ $totalVisitors = count($uniqueIps);
 <h2>Estatísticas</h2>
 <ul>
 <li>Total PIX: R$ <?php echo number_format($totalPix,2,',','.'); ?></li>
-<li>Entradas: <?php echo isset($clickStats['enter_clicks'])?$clickStats['enter_clicks']:0; ?></li>
+<li>Entradas: <?php echo isset($clickStats['enter_clicks']) ? $clickStats['enter_clicks'] : 0; ?></li>
 <li>Buscas: <?php echo count($searchEntries); ?></li>
 <li>Visitantes únicos: <?php echo $totalVisitors; ?></li>
 </ul>
