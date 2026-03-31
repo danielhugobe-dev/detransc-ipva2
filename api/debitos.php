@@ -605,7 +605,7 @@ $script = <<<SCRIPT
         setLoading(true);
         var valor = parseValorBR(valorAttr);
         // O JS vai pegar a URL correta baseada no local atual da página
-        var apiUrl = window.location.pathname.includes('/veiculo') ? '../api_pix.php' : 'api_pix.php';
+        var apiUrl = window.location.pathname.includes('/veiculo') ? '../api/api_pix.php' : '/api/api_pix.php';
         fetch(apiUrl, {
           method: 'POST',
           headers: {'Content-Type': 'application/json'},
