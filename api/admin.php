@@ -1,9 +1,9 @@
 <?php
 date_default_timezone_set('America/Sao_Paulo');
-$cfgPath = __DIR__ . 'pix_config.json';
-$pixLogPath = __DIR__ . 'pix_log.json';
-$searchLogPath = __DIR__ . 'search_log.json';
-$clickStatsPath = __DIR__ . 'click_stats.json';
+$cfgPath = __DIR__ . '/pix_config.json';
+$pixLogPath = __DIR__ . '/pix_log.json';
+$searchLogPath = __DIR__ . '/search_log.json';
+$clickStatsPath = __DIR__ . '/click_stats.json';
 
 $msg = isset($_GET['msg']) ? (string)$_GET['msg'] : '';
 
