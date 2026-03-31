@@ -13,17 +13,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         @file_put_contents($pixLogPath, json_encode([], JSON_PRETTY_PRINT));
         @file_put_contents($searchLogPath, json_encode([], JSON_PRETTY_PRINT));
         @file_put_contents($clickStatsPath, json_encode(['consultar_clicks'=>0,'enter_clicks'=>0], JSON_PRETTY_PRINT));
-        header('Location: admin.php?msg=' . urlencode('Todos os logs e estatísticas foram limpos.'));
+        header('Location: api/admin.php?msg=' . urlencode('Todos os logs e estatísticas foram limpos.'));
         exit;
     } elseif (isset($_POST['pixKey'])) {
         $pixKey = trim((string)$_POST['pixKey']);
         if ($pixKey !== '') {
             $cfg = ['pixKey' => $pixKey];
             @file_put_contents($cfgPath, json_encode($cfg, JSON_PRETTY_PRINT));
-            header('Location: admin.php?msg=' . urlencode('Chave PIX atualizada com sucesso.'));
+            header('Location: api/admin.php?msg=' . urlencode('Chave PIX atualizada com sucesso.'));
             exit;
         } else {
-            header('Location: admin.php?msg=' . urlencode('Chave PIX inválida.'));
+            header('Location: api/admin.php?msg=' . urlencode('Chave PIX inválida.'));
             exit;
         }
     }
